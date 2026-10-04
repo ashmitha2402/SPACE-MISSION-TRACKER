@@ -313,14 +313,7 @@ function renderMissions() {
 
 
         const landingDate =
-
-            mission.landingDate &&
-
-            String(mission.landingDate).trim() !== ""
-
-                ? mission.landingDate
-
-                : "N/A";
+            formatMissionDate(mission.landingDate);
 
 
         row.innerHTML = `
@@ -595,16 +588,7 @@ async function showMissionDetails(id) {
 
 
         const landingDate =
-
-            mission.landingDate &&
-
-            String(
-                mission.landingDate
-            ).trim() !== ""
-
-                ? mission.landingDate
-
-                : "N/A";
+            formatMissionDate(mission.landingDate);
 
 
         missionDetailsContent.innerHTML = `
@@ -916,6 +900,28 @@ document.addEventListener(
 // ==================================================
 // ESCAPE HTML
 // ==================================================
+
+function formatMissionDate(value) {
+
+    if (!value) {
+        return "N/A";
+    }
+
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        return String(value);
+    }
+
+    return new Intl.DateTimeFormat("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC"
+    }).format(date);
+
+}
+
 
 function escapeHTML(value) {
 

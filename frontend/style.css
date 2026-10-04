@@ -7,6 +7,7 @@
     margin: 0;
     padding: 0;
 }
+/* Apply Trebuchet MS to the entire website */
 
 html {
     scroll-behavior: smooth;
@@ -16,6 +17,7 @@ body {
     min-height: 100vh;
 
     font-family:
+        "Trebuchet MS",
         Arial,
         Helvetica,
         sans-serif;
@@ -996,9 +998,7 @@ body::before {
     z-index: 2;
 }
 /* Times New Roman font */
-* {
-    font-family: "Times New Roman", Times, serif !important;
-}
+
 /* 
 /* =========================================
    FULL SCREEN VIDEO STARTING PAGE
@@ -1440,7 +1440,7 @@ body > #map-fullscreen-overlay {
 
     pointer-events: none;
 
-    font-family: "Times New Roman", Times, serif;
+    font-family: "Trebuchet MS", Arial, sans-serif !important;
 }
 
 
@@ -1624,4 +1624,8 @@ body > #map-fullscreen-overlay {
         max-width: min(285px, calc(100% - 16px));
         padding: 9px 10px;
     }
+}
+/* Global Trebuchet MS font */
+* {
+    font-family: "Trebuchet MS", Arial, sans-serif !important;
 }

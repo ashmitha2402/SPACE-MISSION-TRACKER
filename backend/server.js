@@ -448,6 +448,21 @@ function normalizeStatus(status) {
 }
 
 
+function normalizeLandingDate(value) {
+
+    if (typeof value !== "string") {
+        return null;
+    }
+
+    const landingDate = value.trim();
+
+    return landingDate && landingDate.toLowerCase() !== "n/a"
+        ? landingDate
+        : null;
+
+}
+
+
 // ==================================================
 // NORMALIZE MISSION
 // ==================================================
@@ -478,8 +493,9 @@ function normalizeMission(mission) {
             "N/A",
 
         landingDate:
-            mission.landingDate ||
-            "N/A",
+            normalizeLandingDate(
+                mission.landingDate
+            ),
 
         status:
             normalizeStatus(
