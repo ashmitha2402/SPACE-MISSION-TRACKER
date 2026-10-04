@@ -10,7 +10,37 @@
 </head>
 
 <body>
+  <!-- STARTING VIDEO SCREEN -->
+<div id="start-page">
+   <video autoplay muted loop playsinline>
+    <source src="assets/planet.mp4" type="video/mp4" width="1000px" height="1000px">
+</video>
 
+    <div class="start-overlay">
+        <h1>SPACE MISSION TRACKER</h1>
+        <p>Explore Space. Discover Missions.</p>
+
+        <div class="start-loading-bar">
+            <div></div>
+        </div>
+
+        <span>LAUNCHING...</span>
+    </div>
+</div>
+  
+
+</div>
+  <!-- Animated Space Background -->
+    <div id="space-video-bg">
+        <iframe
+            src="https://www.youtube.com/embed/kSZddHca0ME?autoplay=1&mute=1&loop=1&playlist=kSZddHca0ME&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            allowfullscreen>
+        </iframe>
+    </div>
+
+  
     <!-- ==============================
          HEADER
     =============================== -->
@@ -337,6 +367,23 @@
     =============================== -->
 
     <script src="script.js"></script>
+   <script>
+window.addEventListener("load", function () {
+
+    setTimeout(function () {
+
+        const startPage = document.getElementById("start-page");
+
+        if (startPage) {
+            startPage.classList.add("hide-start");
+        }
+
+        document.body.style.overflow = "auto";
+
+    }, 5000);
+
+});
+</script>
 
 </body>
 </html>

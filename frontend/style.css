@@ -925,3 +925,373 @@ body {
     }
 
 }
+/* =========================================
+   SPACE VIDEO BACKGROUND
+   ========================================= */
+
+#space-video-bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -10;
+    pointer-events: none;
+    background: #050816;
+}
+
+#space-video-bg iframe {
+    position: absolute;
+
+    /* Make video cover the entire screen */
+    top: 50%;
+    left: 50%;
+
+    width: 100vw;
+    height: 56.25vw;
+
+    min-width: 177.78vh;
+    min-height: 100vh;
+
+    transform: translate(-50%, -50%);
+
+    border: 0;
+    pointer-events: none;
+}
+
+/* Keep the existing application above the video */
+body {
+    position: relative;
+    background: transparent !important;
+}
+
+/* Make the main page layers transparent
+   so the video can actually be seen */
+body > *:not(#space-video-bg) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Dark overlay for readability */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 10, 30, 0.48);
+    z-index: -5;
+    pointer-events: none;
+}
+
+/* Keep your existing cards/panels visible */
+.stat-card,
+.search-container,
+.country-section,
+.filters,
+.missions-section,
+.mission-list,
+.mission-details,
+.card,
+.panel {
+    position: relative;
+    z-index: 2;
+}
+/* Times New Roman font */
+* {
+    font-family: "Times New Roman", Times, serif !important;
+}
+/* 
+/* =========================================
+   FULL SCREEN VIDEO STARTING PAGE
+   ========================================= */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Lock page while intro is showing */
+body:has(#start-page:not(.hide-start)) {
+    overflow: hidden;
+}
+
+/* Full screen intro */
+#start-page {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #000;
+
+    overflow: hidden;
+
+    z-index: 999999 !important;
+
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+}
+
+/* Video */
+#start-page iframe {
+    position: absolute !important;
+
+    top: 50% !important;
+    left: 50% !important;
+
+    width: 125vw !important;
+    height: 70.31vw !important;
+
+    min-width: 222.22vh !important;
+    min-height: 125vh !important;
+
+    transform: translate(-50%, -50%) !important;
+
+    border: 0 !important;
+    pointer-events: none !important;
+    user-select: none;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Dark transparent layer */
+.start-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    background: rgba(0, 0, 0, 0.25);
+
+    color: white;
+
+    pointer-events: none;
+
+    font-family: "Times New Roman", Times, serif;
+}
+
+/* Main title */
+.start-overlay h1 {
+    margin: 0;
+
+    font-family: "Times New Roman", Times, serif;
+
+    font-size: clamp(35px, 5vw, 72px);
+
+    letter-spacing: 5px;
+
+    text-shadow:
+        0 0 10px rgba(255,255,255,0.8),
+        0 0 30px rgba(255,255,255,0.5);
+
+    animation: introTitle 1.5s ease-out;
+}
+
+/* Subtitle */
+.start-overlay p {
+    margin: 15px 0 30px;
+
+    font-family: "Times New Roman", Times, serif;
+
+    font-size: 24px;
+
+    letter-spacing: 2px;
+
+    animation: introSubtitle 2s ease-out;
+}
+
+/* Loading bar */
+.start-loading-bar {
+    width: 280px;
+    height: 4px;
+
+    background: rgba(255,255,255,0.3);
+
+    overflow: hidden;
+
+    margin-bottom: 15px;
+}
+
+.start-loading-bar div {
+    width: 0;
+    height: 100%;
+
+    background: white;
+
+    animation: introLoading 5s linear forwards;
+}
+
+/* Launching text */
+.start-overlay span {
+    font-family: "Times New Roman", Times, serif;
+
+    font-size: 15px;
+
+    letter-spacing: 5px;
+
+    animation: introBlink 1s infinite;
+}
+
+/* Fade out */
+#start-page.hide-start {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Animations */
+
+@keyframes introTitle {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes introSubtitle {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes introLoading {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes introBlink {
+    0%, 100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+/* =========================================
+   FULL SCREEN LOADING VIDEO
+   ========================================= */
+
+#start-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #000;
+
+    overflow: hidden;
+
+    z-index: 999999;
+
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+}
+
+
+/* Make the video completely cover the screen */
+
+#start-page video {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    /* THIS MAKES THE VIDEO FULL SCREEN */
+    object-fit: cover;
+
+    /* Keeps the center of the video visible */
+    object-position: center center;
+
+    display: block;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+}
+
+
+/* =========================================
+   LOADING PAGE OVERLAY
+   ========================================= */
+
+.start-overlay {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    background: rgba(0, 0, 0, 0.25);
+
+    color: white;
+
+    pointer-events: none;
+
+    font-family: "Times New Roman", Times, serif;
+}
+
+
+/* =========================================
+   FADE OUT
+   ========================================= */
+
+#start-page.hide-start {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
