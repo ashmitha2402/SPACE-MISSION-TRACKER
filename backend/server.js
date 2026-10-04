@@ -17,6 +17,19 @@ const app = express();
 
 const PORT = 3000;
 
+const horizonsTargets = new Map([
+    ["-31", "Voyager 1"],
+    ["-32", "Voyager 2"],
+    ["-61", "Juno"],
+    ["-64", "OSIRIS-REx"],
+    ["-96", "Parker Solar Probe"],
+    ["-98", "New Horizons"],
+    ["earth", "Earth"]
+]);
+
+const ephemerisCache = new Map();
+const EPHEMERIS_CACHE_MS = 5 * 60 * 1000;
+
 
 // ==================================================
 // MIDDLEWARE
@@ -534,6 +547,113 @@ app.get(
             )
         );
 
+    }
+);
+
+
+// ==================================================
+// GET VERIFIED HELIOCENTRIC SPACECRAFT EPHEMERIS
+// ==================================================
+
+app.get(
+    "/api/spacecraft/:targetId/ephemeris",
+    async (req, res) => {
+
+        const targetId = String(req.params.targetId);
+        const spacecraftName = horizonsTargets.get(targetId);
+        const horizonsCommand = targetId === "earth" ? "399" : targetId;
+
+        if (!spacecraftName) {
+            return res
+                .status(404)
+                .json({ error: "No supported Horizons target for this spacecraft." });
+        }
+
+        const cached = ephemerisCache.get(targetId);
+        if (cached && Date.now() - cached.fetchedAt < EPHEMERIS_CACHE_MS) {
+            return res.json(cached.data);
+        }
+
+        const now = new Date();
+        const startTime = now.toISOString().replace("T", " ").slice(0, 16);
+        const stopTime = new Date(now.getTime() + 30 * 86400000)
+            .toISOString()
+            .replace("T", " ")
+            .slice(0, 16);
+        const parameters = new URLSearchParams({
+            format: "json",
+            COMMAND: `'${horizonsCommand}'`,
+            OBJ_DATA: "'NO'",
+            MAKE_EPHEM: "'YES'",
+            EPHEM_TYPE: "'VECTORS'",
+            CENTER: "'500@10'",
+            START_TIME: `'${startTime}'`,
+            STOP_TIME: `'${stopTime}'`,
+            STEP_SIZE: "'1 d'",
+            OUT_UNITS: "'AU-D'",
+            REF_PLANE: "'ECLIPTIC'",
+            VEC_TABLE: "'2'",
+            CSV_FORMAT: "'YES'"
+        });
+
+        try {
+            const response = await fetch(
+                `https://ssd.jpl.nasa.gov/api/horizons.api?${parameters}`,
+                { signal: AbortSignal.timeout(20000) }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Horizons returned HTTP ${response.status}`);
+            }
+
+            const payload = await response.json();
+            const result = String(payload.result || "");
+            const vectorBlock = result.match(/\$\$SOE([\s\S]*?)\$\$EOE/);
+
+            if (payload.error || !vectorBlock) {
+                throw new Error(payload.error || "Horizons returned no vector data");
+            }
+
+            const trajectory = vectorBlock[1]
+                .split(/\r?\n/)
+                .map((line) => {
+                    const columns = line.split(",").map((column) => column.trim());
+                    const x = Number(columns[2]);
+                    const y = Number(columns[3]);
+                    const z = Number(columns[4]);
+
+                    if (![x, y, z].every(Number.isFinite)) return null;
+                    return {
+                        frame: "heliocentric-au",
+                        x,
+                        y,
+                        z,
+                        epoch: columns[1]
+                    };
+                })
+                .filter(Boolean);
+
+            if (!trajectory.length) {
+                throw new Error("Horizons returned invalid vector coordinates");
+            }
+
+            const data = {
+                spacecraftName,
+                position: trajectory[0],
+                trajectory,
+                lastUpdated: new Date().toISOString(),
+                source: "NASA/JPL Horizons",
+                referenceFrame: "Ecliptic J2000"
+            };
+
+            ephemerisCache.set(targetId, { fetchedAt: Date.now(), data });
+            res.json(data);
+        } catch (error) {
+            console.error(`Horizons lookup failed for ${spacecraftName}:`, error);
+            res.status(502).json({
+                error: "Verified spacecraft position is temporarily unavailable."
+            });
+        }
     }
 );
 

@@ -86,6 +86,9 @@ async function loadMissions() {
 
         missions = await response.json();
 
+        window.__spaceMissionData = missions;
+        window.Space3D?.setMissions(missions);
+
 
         console.log(
             "Missions loaded:",
@@ -176,13 +179,16 @@ function getFilteredMissions() {
                 .toLowerCase();
 
 
-        const matchesSearch =
+        const isSpacecraftAlias = window.Space3D?.isMissionAlias(searchText);
 
-            missionName.includes(searchText) ||
+        const matchesSearch = isSpacecraftAlias
 
-            agency.includes(searchText) ||
+            ? Boolean(window.Space3D?.matchesMission(mission, searchText))
 
-            destination.includes(searchText);
+            : missionName.includes(searchText) ||
+                agency.includes(searchText) ||
+                destination.includes(searchText) ||
+                Boolean(window.Space3D?.matchesMission(mission, searchText));
 
 
         // ------------------------------------------
@@ -375,6 +381,15 @@ function renderMissions() {
                 const missionId =
                     button.dataset.id;
 
+                const mission = missions.find(
+                    (item) => String(item.id) === String(missionId)
+                );
+
+                window.Space3D?.focusMission(mission);
+                document.getElementById("space-explorer")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
 
                 showMissionDetails(
                     missionId

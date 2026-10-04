@@ -7,10 +7,49 @@
     <title>Space Mission Tracker</title>
 
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 
-<body>
+<body>I have now provided the existing files.
 
+  <!-- STARTING VIDEO SCREEN -->
+<div id="start-page">
+   <video autoplay muted loop playsinline>
+    <source src="assets/planet.mp4" type="video/mp4" width="1000px" height="1000px">
+</video>
+
+    <div class="start-overlay">
+        <h1>SPACE MISSION TRACKER</h1>
+        <p>Explore Space. Discover Missions.</p>
+
+        <div class="start-loading-bar">
+            <div></div>
+        </div>
+
+        <span>LAUNCHING...</span>
+    </div>
+</div>
+  
+
+</div>
+  <!-- Animated Space Background -->
+    <div id="space-video-bg">
+        <iframe
+            src="https://www.youtube.com/embed/kSZddHca0ME?autoplay=1&mute=1&loop=1&playlist=kSZddHca0ME&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            allowfullscreen>
+        </iframe>
+    </div>
+
+  
     <!-- ==============================
          HEADER
     =============================== -->
@@ -36,6 +75,28 @@
 
     <main class="container">
 
+        <section id="space-explorer" aria-label="Interactive 3D Astronomical Sky">
+            <div id="space3d-canvas"></div>
+            <div class="space3d-hud">
+                <strong>Night Sky</strong>
+                <span id="space3d-status" role="status">
+                    Planet positions and distances are calculated from approximate orbital elements.
+                </span>
+                <span id="space3d-mission-label" hidden></span>
+                <div class="space3d-controls">
+                    <button type="button" id="space3d-reset">Reset view</button>
+                </div>
+                <small>Drag to look around · scroll to zoom · right-drag to pan</small>
+            </div>
+            <aside id="space3d-object-panel" class="space3d-object-panel" aria-live="polite" hidden>
+                <button type="button" id="space3d-panel-close" class="space3d-panel-close" aria-label="Close astronomy information">×</button>
+                <h2 id="space3d-object-name"></h2>
+                <p>Distance from Earth:</p>
+                <strong id="space3d-object-distance"></strong>
+                <p class="space3d-panel-heading">Missions</p>
+                <ul id="space3d-object-missions"></ul>
+            </aside>
+        </section>
 
         <!-- ==============================
              STATISTICS
@@ -337,6 +398,24 @@
     =============================== -->
 
     <script src="script.js"></script>
+        <script type="module" src="space3d.js"></script>
+   <script>
+window.addEventListener("load", function () {
+
+    setTimeout(function () {
+
+        const startPage = document.getElementById("start-page");
+
+        if (startPage) {
+            startPage.classList.add("hide-start");
+        }
+
+        document.body.style.overflow = "auto";
+
+    }, 5000);
+
+});
+</script>
 
 </body>
 </html>
