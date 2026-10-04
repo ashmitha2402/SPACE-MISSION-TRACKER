@@ -17,8 +17,7 @@
     </script>
 </head>
 
-<body>I have now provided the existing files.
-
+<body>
   <!-- STARTING VIDEO SCREEN -->
 <div id="start-page">
    <video autoplay muted loop playsinline>
@@ -74,29 +73,6 @@
     =============================== -->
 
     <main class="container">
-
-        <section id="space-explorer" aria-label="Interactive 3D Astronomical Sky">
-            <div id="space3d-canvas"></div>
-            <div class="space3d-hud">
-                <strong>Night Sky</strong>
-                <span id="space3d-status" role="status">
-                    Planet positions and distances are calculated from approximate orbital elements.
-                </span>
-                <span id="space3d-mission-label" hidden></span>
-                <div class="space3d-controls">
-                    <button type="button" id="space3d-reset">Reset view</button>
-                </div>
-                <small>Drag to look around · scroll to zoom · right-drag to pan</small>
-            </div>
-            <aside id="space3d-object-panel" class="space3d-object-panel" aria-live="polite" hidden>
-                <button type="button" id="space3d-panel-close" class="space3d-panel-close" aria-label="Close astronomy information">×</button>
-                <h2 id="space3d-object-name"></h2>
-                <p>Distance from Earth:</p>
-                <strong id="space3d-object-distance"></strong>
-                <p class="space3d-panel-heading">Missions</p>
-                <ul id="space3d-object-missions"></ul>
-            </aside>
-        </section>
 
         <!-- ==============================
              STATISTICS
@@ -352,44 +328,73 @@
 
         </section>
 
+        <section id="mission-map-layout" class="mission-map-layout" aria-label="Selected mission and location map">
+            <section id="mission-details-modal" class="mission-detail-card" aria-label="Mission details" hidden>
+                <button
+                    class="mission-modal-close"
+                    id="close-mission-modal"
+                    type="button"
+                    aria-label="Close mission details"
+                >
+                    ×
+                </button>
+                <div id="mission-details-content"></div>
+            </section>
+
+            <section class="mission-map-panel" aria-label="Mission location map">
+                <div class="mission-map-header">
+                    <h2>Mission Location</h2>
+                    <button
+                        type="button"
+                        id="map-fullscreen-open"
+                        class="map-fullscreen-button"
+                        aria-label="Open map fullscreen"
+                        title="Open map fullscreen"
+                    >
+                        ⛶
+                    </button>
+                </div>
+                <section id="space-explorer" aria-label="Interactive 3D Astronomical Sky">
+                    <div id="space3d-canvas"></div>
+                    <div class="space3d-hud">
+                        <strong>Night Sky</strong>
+                        <span id="space3d-status" role="status">
+                            Planet positions and distances are calculated from approximate orbital elements.
+                        </span>
+                        <span id="space3d-mission-label" hidden></span>
+                        <div class="space3d-controls">
+                            <button type="button" id="space3d-reset">Reset view</button>
+                        </div>
+                        <small>Drag to look around · scroll to zoom · right-drag to pan</small>
+                    </div>
+                    <aside id="space3d-object-panel" class="space3d-object-panel" aria-live="polite" hidden>
+                        <button type="button" id="space3d-panel-close" class="space3d-panel-close" aria-label="Close astronomy information">×</button>
+                        <h2 id="space3d-object-name"></h2>
+                        <p>Distance from Earth:</p>
+                        <strong id="space3d-object-distance"></strong>
+                        <p class="space3d-panel-heading">Missions</p>
+                        <ul id="space3d-object-missions"></ul>
+                    </aside>
+                </section>
+            </section>
+
     </main>
 
 
-    <!-- ==============================
-         MISSION DETAILS MODAL
-    =============================== -->
-
-    <div
-        id="mission-details-modal"
-        style="display: none;"
-    >
-
-        <div class="mission-modal-backdrop"></div>
-
-
-        <div class="mission-modal">
-
+    <div id="map-fullscreen-overlay" class="map-fullscreen-overlay" role="dialog" aria-modal="true" aria-labelledby="map-fullscreen-title" tabindex="-1" hidden>
+        <div class="map-fullscreen-header">
+            <h2 id="map-fullscreen-title">Mission Location</h2>
             <button
-                class="mission-modal-close"
-                id="close-mission-modal"
                 type="button"
-                aria-label="Close mission details"
+                id="map-fullscreen-close"
+                class="map-fullscreen-button map-fullscreen-close"
+                aria-label="Close fullscreen map"
+                title="Close fullscreen map"
             >
                 ×
             </button>
-
-
-            <div id="mission-details-content">
-
-                <!--
-                    Mission details are inserted here
-                    by script.js
-                -->
-
-            </div>
-
         </div>
-
+        <div id="map-fullscreen-slot" class="map-fullscreen-slot"></div>
     </div>
 
 

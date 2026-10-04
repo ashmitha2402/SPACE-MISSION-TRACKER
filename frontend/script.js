@@ -61,6 +61,29 @@ const missionDetailsContent =
 const closeMissionModal =
     document.getElementById("close-mission-modal");
 
+const missionMapPanel =
+    document.querySelector(".mission-map-panel");
+
+const mapFullscreenOverlay =
+    document.getElementById("map-fullscreen-overlay");
+
+const mapFullscreenSlot =
+    document.getElementById("map-fullscreen-slot");
+
+const mapFullscreenOpen =
+    document.getElementById("map-fullscreen-open");
+
+const mapFullscreenClose =
+    document.getElementById("map-fullscreen-close");
+
+const appMain =
+    document.querySelector("main");
+
+let mapPlaceholder = null;
+let mapReturnFocus = null;
+let previousBodyOverflow = "";
+let previousMainInert = false;
+
 
 // ==================================================
 // LOAD MISSIONS FROM BACKEND
@@ -386,7 +409,7 @@ function renderMissions() {
                 );
 
                 window.Space3D?.focusMission(mission);
-                document.getElementById("space-explorer")?.scrollIntoView({
+                document.getElementById("mission-map-layout")?.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
                 });
@@ -789,8 +812,7 @@ async function showMissionDetails(id) {
         `;
 
 
-        missionModal.style.display =
-            "flex";
+        missionModal.hidden = false;
 
 
     } catch (error) {
@@ -818,8 +840,7 @@ async function showMissionDetails(id) {
         `;
 
 
-        missionModal.style.display =
-            "flex";
+        missionModal.hidden = false;
 
     }
 
@@ -834,32 +855,42 @@ closeMissionModal.addEventListener(
     "click",
     () => {
 
-        missionModal.style.display =
-            "none";
+        missionModal.hidden = true;
 
     }
 );
 
 
-const modalBackdrop =
-    document.querySelector(
-        ".mission-modal-backdrop"
-    );
+function openMapFullscreen() {
+    if (!missionMapPanel || !mapFullscreenOverlay || !mapFullscreenSlot || !mapFullscreenOverlay.hidden) return;
 
-
-if (modalBackdrop) {
-
-    modalBackdrop.addEventListener(
-        "click",
-        () => {
-
-            missionModal.style.display =
-                "none";
-
-        }
-    );
-
+    mapPlaceholder = document.createComment("Mission map location");
+    missionMapPanel.parentNode.insertBefore(mapPlaceholder, missionMapPanel);
+    mapReturnFocus = mapFullscreenOpen;
+    previousBodyOverflow = document.body.style.overflow;
+    previousMainInert = appMain.inert;
+    document.body.style.overflow = "hidden";
+    appMain.inert = true;
+    mapFullscreenOverlay.hidden = false;
+    mapFullscreenSlot.appendChild(missionMapPanel);
+    mapFullscreenClose.focus();
 }
+
+function closeMapFullscreen() {
+    if (!mapPlaceholder || !mapFullscreenOverlay) return;
+
+    mapPlaceholder.parentNode.insertBefore(missionMapPanel, mapPlaceholder);
+    mapPlaceholder.remove();
+    mapPlaceholder = null;
+    mapFullscreenOverlay.hidden = true;
+    document.body.style.overflow = previousBodyOverflow;
+    appMain.inert = previousMainInert;
+    mapReturnFocus?.focus();
+    mapReturnFocus = null;
+}
+
+mapFullscreenOpen.addEventListener("click", openMapFullscreen);
+mapFullscreenClose.addEventListener("click", closeMapFullscreen);
 
 
 // ==================================================
@@ -870,11 +901,12 @@ document.addEventListener(
     "keydown",
     (event) => {
 
-        if (event.key === "Escape") {
+        if (event.key !== "Escape") return;
 
-            missionModal.style.display =
-                "none";
-
+        if (!mapFullscreenOverlay.hidden) {
+            closeMapFullscreen();
+        } else if (!missionModal.hidden) {
+            missionModal.hidden = true;
         }
 
     }
