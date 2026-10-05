@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Facts | Space Mission Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="space-facts.css">
+</head>
+<body class="space-facts-page">
+    <header class="site-header">
+        <div class="header-content">
+            <nav class="top-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="space-agencies.html" class="nav-link nav-space-agencies">🚀 Space Agencies</a>
+                <a href="index.html#mission-list" class="nav-link">🛰 Missions</a>
+                <a href="space-facts.html" class="nav-link active" aria-current="page">💡 Space Facts</a>
+                <a href="lunar-orbiters.html" class="nav-link">🌙 Lunar Orbiters</a>
+            </nav>
+            <h1>💡 Space Facts</h1>
+            <p>A random fact from astronomy, planetary science, and spaceflight.</p>
+        </div>
+    </header>
+
+    <main class="space-facts-main">
+        <section class="space-fact-card" aria-labelledby="space-fact-heading">
+            <h2 id="space-fact-heading" class="space-fact-tag">💡 SPACE FACT</h2>
+            <p id="space-fact-text" class="space-fact-text" aria-live="polite"></p>
+            <div class="space-fact-controls">
+                <button type="button" id="space-fact-previous" class="space-fact-control" disabled>← Previous Fact</button>
+                <button type="button" id="space-fact-next" class="space-fact-control">Next Fact →</button>
+            </div>
+            <p id="space-fact-count" class="space-fact-count" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <script src="space-facts.js"></script>
+</body>
+</html>

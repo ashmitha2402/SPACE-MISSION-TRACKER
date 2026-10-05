@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Orbiters | Space Mission Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="lunar-orbiters.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body class="lunar-orbiters-page">
+    <header class="site-header">
+        <div class="header-content">
+            <nav class="top-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="space-agencies.html" class="nav-link nav-space-agencies">🚀 Space Agencies</a>
+                <a href="index.html#mission-list" class="nav-link">🛰 Missions</a>
+                <a href="space-facts.html" class="nav-link">💡 Space Facts</a>
+                <a href="lunar-orbiters.html" class="nav-link active" aria-current="page">🌙 Lunar Orbiters</a>
+            </nav>
+            <h1>🌙 Lunar Orbiters</h1>
+            <p>Explore spacecraft that have studied the Moon</p>
+        </div>
+    </header>
+
+    <main class="lunar-main">
+        <section class="lunar-toolbar" aria-label="Search and filter lunar missions">
+            <label class="lunar-search-wrap" for="lunar-search">
+                <span class="visually-hidden">Search lunar orbiter missions</span>
+                <input id="lunar-search" type="search" placeholder="🔍 Search lunar orbiter..." autocomplete="off">
+            </label>
+            <div class="lunar-filters">
+                <label>Agency
+                    <select id="agency-filter">
+                        <option value="all">All agencies</option>
+                        <option>NASA</option>
+                        <option>ISRO</option>
+                        <option>ESA</option>
+                        <option>JAXA</option>
+                        <option>CNSA</option>
+                        <option>KASA</option>
+                        <option>Soviet Union</option>
+                        <option>NASA/DoD</option>
+                    </select>
+                </label>
+                <label>Country / Region
+                    <select id="country-filter">
+                        <option value="all">All regions</option>
+                        <option>USA</option>
+                        <option>India</option>
+                        <option>Japan</option>
+                        <option>China</option>
+                        <option>South Korea</option>
+                        <option>Europe</option>
+                        <option>Soviet Union</option>
+                    </select>
+                </label>
+                <label>Status
+                    <select id="status-filter">
+                        <option value="all">All statuses</option>
+                        <option>Active</option>
+                        <option>Completed</option>
+                        <option>Historical</option>
+                        <option>Planned</option>
+                    </select>
+                </label>
+            </div>
+            <p id="lunar-result-count" class="lunar-result-count" aria-live="polite">26 missions</p>
+        </section>
+
+        <section class="lunar-layout" aria-label="Lunar mission visualization and mission details">
+            <div class="lunar-scene-card">
+                <div id="lunar-scene" aria-label="Interactive 3D Moon with lunar mission markers"></div>
+                <div id="lunar-tooltip" class="lunar-tooltip" role="tooltip" hidden></div>
+                <div class="lunar-scene-caption">Schematic mission orbit display</div>
+                <button id="reset-view" class="lunar-reset-button" type="button" title="Reset view">⟳ <span>Reset View</span></button>
+            </div>
+
+            <aside id="mission-details" class="lunar-details-panel" aria-live="polite">
+                <div class="lunar-details-empty">
+                    <span class="lunar-details-kicker">MISSION FILE</span>
+                    <h2>Select an orbiter</h2>
+                    <p>Choose a glowing marker or a search result to inspect a lunar mission.</p>
+                </div>
+            </aside>
+        </section>
+
+        <section class="lunar-results-section" aria-label="Matching lunar missions">
+            <div class="lunar-results-heading">
+                <h2>Mission Directory</h2>
+                <span>26 missions</span>
+            </div>
+            <div id="mission-results" class="lunar-mission-results"></div>
+        </section>
+
+        <p class="lunar-disclaimer">Mission locations are for reference and are not live spacecraft tracking.</p>
+    </main>
+
+    <script type="module" src="lunar-orbiters.js"></script>
+</body>
+</html>
