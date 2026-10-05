@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Agencies | Space Mission Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="space-agencies.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body class="agencies-page">
+    <div class="agencies-starfield" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="header-content">
+            <nav class="top-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#mission-list" class="nav-link">Missions</a>
+                <a href="live-globe.html" class="nav-link">Live Globe</a>
+                <a href="space-agencies.html" class="nav-link nav-space-agencies active">🚀 Space Agencies</a>
+                <a href="index.html#space-facts" class="nav-link">🌌 Space Facts</a>
+                <a href="signin.html" class="nav-link nav-signin">Sign In</a>
+            </nav>
+            <h1>Space Agencies</h1>
+            <p>Explore space agencies and national programmes on an interactive 3D Earth.</p>
+        </div>
+    </header>
+
+    <main class="container agencies-main">
+        <section class="agencies-controls" aria-label="Search and filter space agencies">
+            <div class="agency-search-wrap">
+                <input
+                    id="agency-search"
+                    type="search"
+                    class="agency-search"
+                    placeholder="Search by agency, country, or region..."
+                    autocomplete="off"
+                    aria-label="Search space agencies"
+                />
+            </div>
+            <div class="region-filters" role="group" aria-label="Filter by region">
+                <button type="button" class="filter-button active" data-region="all">All</button>
+                <button type="button" class="filter-button" data-region="Americas">🌎 Americas</button>
+                <button type="button" class="filter-button" data-region="Asia">🌏 Asia</button>
+                <button type="button" class="filter-button" data-region="Europe">🇪🇺 Europe</button>
+                <button type="button" class="filter-button" data-region="Africa">🌍 Africa</button>
+                <button type="button" class="filter-button" data-region="Oceania">🌏 Oceania</button>
+            </div>
+            <p id="agency-filter-status" class="agency-filter-status" aria-live="polite"></p>
+        </section>
+
+        <section class="agencies-layout">
+            <div class="agencies-globe-card">
+                <div id="agencies-globe-canvas" aria-label="Interactive 3D Earth with agency markers"></div>
+                <div id="agency-hover-tooltip" class="agency-hover-tooltip hidden" role="tooltip"></div>
+            </div>
+
+            <aside id="agency-details-panel" class="agency-details-panel" aria-live="polite">
+                <div class="agency-details-placeholder">
+                    <h2>🌍 Explore Space Agencies</h2>
+                    <p>Select a 📍 marker on Earth to explore space agencies around the world.</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script type="module" src="space-agencies.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 
 // ==================================================
@@ -16,6 +17,17 @@ const path = require("path");
 const app = express();
 
 const PORT = 3000;
+const LIVE_TRACKING_API_KEY = process.env.LIVE_TRACKING_API_KEY || "";
+let nodemailer = null;
+
+if (
+    process.env.EMAIL_HOST &&
+    process.env.EMAIL_PORT &&
+    process.env.EMAIL_USER &&
+    process.env.EMAIL_PASSWORD
+) {
+    nodemailer = require("nodemailer");
+}
 
 const horizonsTargets = new Map([
     ["-31", "Voyager 1"],
@@ -29,6 +41,118 @@ const horizonsTargets = new Map([
 
 const ephemerisCache = new Map();
 const EPHEMERIS_CACHE_MS = 5 * 60 * 1000;
+const resetTokens = new Map();
+const accountRecords = new Map();
+const knownAccountEmails = new Set(
+    String(process.env.ACCOUNT_EMAILS || "")
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+);
+
+function hashToken(value) {
+    return crypto.createHash("sha256").update(String(value)).digest("hex");
+}
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
+    const derived = crypto.scryptSync(password, salt, 64).toString("hex");
+    return `${salt}:${derived}`;
+}
+
+function verifyPassword(password, storedValue) {
+    if (!storedValue || typeof storedValue !== "string") {
+        return false;
+    }
+
+    const [salt, hash] = storedValue.split(":");
+    if (!salt || !hash) {
+        return false;
+    }
+
+    const computed = crypto.scryptSync(password, salt, 64).toString("hex");
+    return crypto.timingSafeEqual(
+        Buffer.from(hash, "hex"),
+        Buffer.from(computed, "hex")
+    );
+}
+
+function sendPasswordResetEmail(email, token) {
+    if (!nodemailer) {
+        console.warn(
+            "Password reset email not sent because SMTP configuration is not set. Configure EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, and EMAIL_FROM."
+        );
+        return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_PORT || 587),
+        secure: Number(process.env.EMAIL_PORT || 587) === 465,
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+
+    const resetUrl = `http://localhost:8000/reset-password.html?token=${encodeURIComponent(token)}`;
+
+    transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: email,
+        subject: "Reset your Space Mission Tracker password",
+        html: `
+            <p>We received a request to reset your password.</p>
+            <p>Use the secure link below to continue:</p>
+            <p><a href="${resetUrl}">${resetUrl}</a></p>
+            <p>This link expires in 1 hour.</p>
+        `
+    }).catch((error) => {
+        console.error("Password reset email send failed:", error);
+    });
+
+    return true;
+}
+
+async function fetchActiveSatelliteCatalog() {
+    const response = await fetch(
+        "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=TLE",
+        {
+            headers: {
+                "User-Agent": "Mozilla/5.0",
+                Accept: "text/plain"
+            },
+            signal: AbortSignal.timeout(30000)
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(`CelesTrak returned HTTP ${response.status}`);
+    }
+
+    const text = await response.text();
+    const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const satellites = [];
+
+    for (let index = 0; index + 2 < lines.length; index += 3) {
+        const nameLine = lines[index];
+        const line1 = lines[index + 1];
+        const line2 = lines[index + 2];
+
+        if (!nameLine || !line1 || !line2 || !line1.startsWith("1 ") || !line2.startsWith("2 ")) {
+            continue;
+        }
+
+        satellites.push({
+            name: nameLine.trim() || `Satellite ${line1.slice(2, 7).trim()}`,
+            line1,
+            line2,
+            catalogId: line1.slice(2, 7).trim(),
+            source: "CelesTrak active TLE"
+        });
+    }
+
+    return satellites;
+}
 
 
 // ==================================================
@@ -530,6 +654,127 @@ app.get(
 
 
 // ==================================================
+// AUTH / PASSWORD RESET
+// ==================================================
+
+app.get(
+    "/api/auth/config",
+    (req, res) => {
+
+        res.json({
+            emailConfigured: Boolean(nodemailer),
+            emailProviderRequired: !nodemailer,
+            requiredEnvironment: [
+                "EMAIL_HOST",
+                "EMAIL_PORT",
+                "EMAIL_USER",
+                "EMAIL_PASSWORD",
+                "EMAIL_FROM"
+            ]
+        });
+
+    }
+);
+
+app.post(
+    "/api/auth/forgot-password",
+    (req, res) => {
+
+        const email = String(req.body?.email || "").trim().toLowerCase();
+
+        if (!email || !email.includes("@")) {
+            return res.status(400).json({
+                message: "A valid email address is required."
+            });
+        }
+
+        const accountExists =
+            accountRecords.has(email) ||
+            knownAccountEmails.has(email);
+
+        if (!accountExists) {
+            return res.json({
+                message: "If an account exists for that email, a password reset link has been sent."
+            });
+        }
+
+        const token = crypto.randomBytes(32).toString("hex");
+        const tokenHash = hashToken(token);
+        const expiresAt = Date.now() + 60 * 60 * 1000;
+
+        resetTokens.set(tokenHash, {
+            email,
+            expiresAt
+        });
+
+        sendPasswordResetEmail(email, token);
+
+        return res.json({
+            message: "If an account exists for that email, a password reset link has been sent."
+        });
+
+    }
+);
+
+app.post(
+    "/api/auth/reset-password",
+    (req, res) => {
+
+        const token = String(req.body?.token || "").trim();
+        const password = String(req.body?.password || "");
+        const confirmPassword = String(req.body?.confirmPassword || "");
+
+        if (!token || !password || !confirmPassword) {
+            return res.status(400).json({
+                message: "Missing reset token or new password."
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long."
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                message: "Passwords do not match."
+            });
+        }
+
+        const tokenHash = hashToken(token);
+        const resetRecord = resetTokens.get(tokenHash);
+
+        if (!resetRecord) {
+            return res.status(400).json({
+                message: "The password reset link is invalid or has expired."
+            });
+        }
+
+        if (Date.now() > resetRecord.expiresAt) {
+            resetTokens.delete(tokenHash);
+            return res.status(400).json({
+                message: "The password reset link is invalid or has expired."
+            });
+        }
+
+        const passwordHash = hashPassword(password);
+        accountRecords.set(resetRecord.email, {
+            passwordHash,
+            updatedAt: new Date().toISOString()
+        });
+
+        resetTokens.delete(tokenHash);
+
+        return res.json({
+            message: "Your password has been reset successfully."
+        });
+
+    }
+);
+
+
+// ==================================================
 // GET ONE MISSION
 // ==================================================
 
@@ -688,6 +933,72 @@ app.get(
 
     }
 );
+
+
+// ==================================================
+// LIVE GLOBE STATUS
+// ==================================================
+
+app.get(
+    "/api/live-globe/status",
+    (req, res) => {
+
+        res.json({
+            source: "CelesTrak active TLE feed (currently blocked in this environment)",
+            apiKeyRequired: false,
+            apiKeyConfigured: Boolean(LIVE_TRACKING_API_KEY),
+            liveEarthTrackingAvailable: false,
+            liveMoonTrackingAvailable: false,
+            liveSolarTrackingAvailable: false,
+            note: "The app does not claim live Earth tracking when the upstream active-satellite source is unavailable. The current environment returns HTTP 403 from CelesTrak, so the globe intentionally shows an unavailable state instead of fabricated coordinates."
+        });
+
+    }
+);
+
+app.get(
+    "/api/live-globe/satellites",
+    async (req, res) => {
+        try {
+            const satellites = await fetchActiveSatelliteCatalog();
+            res.json({
+                source: "CelesTrak active TLE",
+                updatedAt: new Date().toISOString(),
+                count: satellites.length,
+                satellites
+            });
+        } catch (error) {
+            console.error("CelesTrak active satellite feed failed:", error);
+            res.status(502).json({
+                error: "Live satellite catalog is temporarily unavailable."
+            });
+        }
+    }
+);
+
+
+// ==================================================
+// FRONTEND + SPACE AGENCIES
+// ==================================================
+
+const frontendPath = path.join(__dirname, "..", "frontend");
+const spaceAgenciesDataPath = path.join(frontendPath, "data", "space-agencies.json");
+
+app.use(express.static(frontendPath));
+
+app.get("/space-agencies", (req, res) => {
+    res.sendFile(path.join(frontendPath, "space-agencies.html"));
+});
+
+app.get("/api/space-agencies", (req, res) => {
+    try {
+        const raw = fs.readFileSync(spaceAgenciesDataPath, "utf8");
+        res.json(JSON.parse(raw));
+    } catch (error) {
+        console.error("Space agencies data read failed:", error);
+        res.status(500).json({ error: "Space agency data is unavailable." });
+    }
+});
 
 
 // ==================================================

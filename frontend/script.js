@@ -956,7 +956,132 @@ function escapeHTML(value) {
 
 
 // ==================================================
+// SPACE FACTS
+// ==================================================
+
+const spaceFacts = [
+    "A day on Venus is longer than a year on Venus.",
+    "Sunlight takes about 8 minutes and 20 seconds to reach Earth.",
+    "Saturn could float in water because its average density is lower than water.",
+    "Voyager 1 is the most distant human-made object from Earth.",
+    "The International Space Station orbits Earth approximately every 90 minutes.",
+    "Neptune takes about 165 Earth years to orbit the Sun.",
+    "Olympus Mons on Mars is the largest volcano in the Solar System.",
+    "The Moon moves away from Earth by about 3.8 centimeters each year.",
+    "A teaspoon of neutron star material would weigh about a billion tons on Earth.",
+    "Jupiter's Great Red Spot is a storm that has been observed for centuries.",
+    "Mercury has the most eccentric orbit of the eight major planets.",
+    "One day on Mars lasts about 24 hours and 37 minutes.",
+    "The Sun contains more than 99.8 percent of the Solar System's total mass.",
+    "Uranus rotates on its side, with an axial tilt of about 98 degrees.",
+    "Sound cannot travel through the vacuum of space because it needs a medium.",
+    "There are more stars in the universe than grains of sand on all of Earth's beaches.",
+    "The Milky Way galaxy is about 100,000 light-years across.",
+    "A light-year is the distance light travels in one year, roughly 9.46 trillion kilometers.",
+    "Black holes have gravitational pull so strong that not even light can escape beyond the event horizon.",
+    "The coldest place in the Solar System is often near permanently shadowed lunar craters.",
+    "Saturn's rings are mostly made of ice particles ranging from dust-sized to house-sized.",
+    "Pluto has a heart-shaped glacier of nitrogen ice on its surface.",
+    "The Apollo 11 crew left reflective panels on the Moon used for laser ranging experiments.",
+    "Space begins at the Kármán line, commonly defined at 100 kilometers above sea level.",
+    "The Hubble Space Telescope has observed galaxies more than 13 billion light-years away.",
+    "Cosmic microwave background radiation is leftover glow from the early universe.",
+    "A supernova can briefly outshine an entire galaxy.",
+    "The Sun converts about 600 million tons of hydrogen into helium every second.",
+    "Earth's core is as hot as the surface of the Sun.",
+    "Mars has the largest canyon in the Solar System, Valles Marineris.",
+    "Ganymede, a moon of Jupiter, is larger than the planet Mercury.",
+    "Io, another Jovian moon, is the most volcanically active body in the Solar System.",
+    "Titan, Saturn's largest moon, has lakes and rivers of liquid methane and ethane.",
+    "The James Webb Space Telescope observes primarily in infrared light.",
+    "Asteroid 16 Psyche may be the exposed metallic core of a protoplanet.",
+    "The Oort Cloud is a distant shell of icy objects surrounding the Solar System.",
+    "Halley's Comet returns to the inner Solar System about every 76 years.",
+    "Pulsars are rapidly rotating neutron stars that emit beams of radiation.",
+    "The Andromeda Galaxy is on a collision course with the Milky Way in billions of years.",
+    "Exoplanets are planets that orbit stars outside our Solar System.",
+    "The speed of light in a vacuum is about 299,792 kilometers per second.",
+    "Without a spacesuit, a human would lose consciousness in seconds in the vacuum of space.",
+    "The ISS travels at about 7.66 kilometers per second in low Earth orbit.",
+    "Sputnik 1, launched in 1957, was the first artificial satellite to orbit Earth.",
+    "Yuri Gagarin became the first human in space on 12 April 1961.",
+    "The Apollo missions brought back about 382 kilograms of lunar rock and soil.",
+    "Venus is the hottest planet in the Solar System due to a runaway greenhouse effect.",
+    "Earth is the only known planet with stable bodies of liquid water on its surface.",
+    "The largest known star, some red supergiants, could swallow Earth within the orbit of Jupiter.",
+    "Dark matter makes up most of the matter in the universe but does not emit light.",
+    "Neutrinos from the Sun pass through your body by the trillions every second.",
+    "The Big Bang model describes the expansion of the universe from an extremely hot, dense state.",
+    "A year on Mercury lasts only about 88 Earth days.",
+    "Enceladus, a moon of Saturn, spews water vapor from geysers at its south pole.",
+    "The Crab Nebula formed from a supernova observed on Earth in the year 1054.",
+    "Gamma-ray bursts are the most energetic explosions known in the universe.",
+    "The Parker Solar Probe has flown closer to the Sun than any previous spacecraft."
+];
+
+let currentSpaceFact = "";
+
+function pickRandomSpaceFact(previousFact) {
+    if (!spaceFacts.length) {
+        return "";
+    }
+
+    if (spaceFacts.length === 1) {
+        return spaceFacts[0];
+    }
+
+    let nextFact = previousFact;
+
+    while (nextFact === previousFact) {
+        const index = Math.floor(Math.random() * spaceFacts.length);
+        nextFact = spaceFacts[index];
+    }
+
+    return nextFact;
+}
+
+function setSpaceFactText(factText, animate) {
+    const factElement = document.getElementById("space-fact-text");
+
+    if (!factElement) {
+        return;
+    }
+
+    if (!animate) {
+        factElement.textContent = factText;
+        return;
+    }
+
+    factElement.classList.add("is-fading");
+
+    window.setTimeout(() => {
+        factElement.textContent = factText;
+        factElement.classList.remove("is-fading");
+    }, 280);
+}
+
+function initSpaceFacts() {
+    const factElement = document.getElementById("space-fact-text");
+    const nextButton = document.getElementById("space-fact-next");
+
+    if (!factElement || !nextButton) {
+        return;
+    }
+
+    currentSpaceFact = pickRandomSpaceFact("");
+    setSpaceFactText(currentSpaceFact, false);
+
+    nextButton.addEventListener("click", () => {
+        const nextFact = pickRandomSpaceFact(currentSpaceFact);
+        currentSpaceFact = nextFact;
+        setSpaceFactText(nextFact, true);
+    });
+}
+
+
+// ==================================================
 // START APPLICATION
 // ==================================================
 
 loadMissions();
+initSpaceFacts();
