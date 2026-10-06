@@ -1745,7 +1745,9 @@ body > #map-fullscreen-overlay {
         padding: 9px 10px;
     }
 }
-/* Global Trebuchet MS font */
+/* Global Courier Font */
+html,
+body,
 * {
-    font-family: "Trebuchet MS", Arial, sans-serif !important;
+    font-family: "Courier New", Courier, monospace !important;
 }
